@@ -17,4 +17,4 @@ RUN useradd -m -G sudo -p '' user
 
 USER user
 
-WORKDIR /home/user
+WORKDIR /home/user/work
