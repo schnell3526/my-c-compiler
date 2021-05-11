@@ -1,13 +1,15 @@
 CONTAINER_NAME=my-c-compiler_env
 VERSION=latest
 SHELL=/bin/bash
+DOCKERFILE_DIR=docker
+DOCKERFILE_NAME=Dockerfile
 
 br: ## build&run
 	@make b
 	@make r
 
 b: ## build Dockerfile
-	docker build -t ${CONTAINER_NAME}:${VERSION} .
+	docker build --file $(DOCKERFILE_DIR)/$(DOCKERFILE_NAME) -t ${CONTAINER_NAME}:${VERSION} .
 
 r: ## run container
 	docker run -it \
