@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// kind of token
 typedef enum {
     TK_RESERVED,    // sign
     TK_NUM,         // integer token
@@ -22,6 +21,21 @@ struct Token{
 };
 
 Token *token;
+
+char *user_input;
+
+void error_at(char *loc, char *fmt, ...){
+    va_list ap;
+    va_start(ap,fmt);
+
+    int pos = loc -user_input;
+    fprintf(stderr, "%s\n", user_input);
+    fprintf(stderr, "%*s", pos, " ");
+    fprintf(stderr, "^ ");
+    vfprintf(stderr, fmt, ap);
+    fprintf(stderr, "\n");
+    exit(1);
+}
 
 void error(char *fmt, ...){
     va_list ap;
@@ -40,13 +54,15 @@ bool consume(char op){
 
 void expect(char op){
     if (token->kind != TK_RESERVED || token->str[0] != op)
-        error("'%c' is expected", op);
+        // error("expected '%c'", op);
+        error_at(token->str, "expected '%c", op);
     token = token->next;
 }
 
 int expect_number(){
     if(token->kind != TK_NUM)
-        error("it's not number");
+        // error("expected number");
+        error_at(token->str, "expected a number");
     int val = token->val;
     token = token->next;
     return val;
@@ -64,7 +80,8 @@ Token *new_token(TokenKind kind, Token *cur, char *str){
     return tok;
 }
 
-Token *tokenize(char *p){
+Token *tokenize(){
+    char *p = user_input;
     Token head;
     head.next = NULL;
     Token *cur = &head;
@@ -86,7 +103,8 @@ Token *tokenize(char *p){
             continue;
         }
 
-        error("トークナイズできません");
+        // error("invalid token");
+        error_at(p, "expected a number");
     }
 
     new_token(TK_EOF, cur, p);
@@ -95,11 +113,12 @@ Token *tokenize(char *p){
 
 int main(int argc, char **argv){
     if(argc != 2){
-        fprintf(stderr, "The number of argument is incorrect.\n");
+        error("%s: invalid namber of arguments, argv[0]");
         return 1;
     }
 
-    token = tokenize(argv[1]);
+    user_input = argv[1];
+    token = tokenize();
 
     printf(".intel_syntax noprefix\n");
     printf(".global main\n");
