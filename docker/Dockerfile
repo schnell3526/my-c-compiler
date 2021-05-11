@@ -19,3 +19,5 @@ RUN useradd -m -G sudo -p '' user
 USER user
 
 WORKDIR /home/user/work
+
+CMD [ "/bin/bash" ]
