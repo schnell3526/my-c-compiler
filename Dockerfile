@@ -10,6 +10,7 @@ RUN apt update \
         libc6-dev \
         make \
         sudo \
+        vim \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 

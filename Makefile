@@ -1,18 +1,33 @@
-NAME=my-c-compiler_env
+CONTAINER_NAME=my-c-compiler_env
 VERSION=latest
+SHELL=/bin/bash
 
-build:
-	docker	build	-t	${NAME}:${VERSION}	.
+br: ## build&run
+	@make b
+	@make r
 
-start:
-	docker	run	-it	\
-	-v	${PWD}/src:/home/user/work	\
-	--name	${NAME}	\
-	${NAME}:${VERSION}	\
-	bash
+b: ## build Dockerfile
+	docker build -t ${CONTAINER_NAME}:${VERSION} .
 
-stop:
-	docker	rm	-f	${NAME}
+r: ## run container
+	docker run -it \
+	-v ${PWD}/src:/home/user/work \
+	${CONTAINER_NAME}:${VERSION} \
+	/bin/bash
 
-clean:
-	docker	rmi	${NAME}:${VERSION}
+
+NONE_DOCKER_IMAGES=`docker images -f dangling=true -q`
+EXITED_DOCKER_CONTAINER=`docker ps -aq`
+
+clean: ## clean images & containers
+	-@make clean-images
+	-@make clean-containers
+
+clean-images:
+	docker rmi -f $(NONE_DOCKER_IMAGES)
+
+clean-containers:
+	docker rm -f $(EXITED_DOCKER_CONTAINER)
+
+help: ## this help
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
