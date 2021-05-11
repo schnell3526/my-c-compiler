@@ -9,17 +9,22 @@ br: ## build&run
 	@make r
 
 b: ## build Dockerfile
-	docker build --file $(DOCKERFILE_DIR)/$(DOCKERFILE_NAME) -t ${CONTAINER_NAME}:${VERSION} .
+	docker build --file $(DOCKERFILE_DIR)/$(DOCKERFILE_NAME) \
+	-t ${CONTAINER_NAME}:${VERSION} .
 
 r: ## run container
 	docker run -it \
 	-v ${PWD}/src:/home/user/work \
+	--name ${CONTAINER_NAME} \
 	${CONTAINER_NAME}:${VERSION} \
 	/bin/bash
 
 
 NONE_DOCKER_IMAGES=`docker images -f dangling=true -q`
 EXITED_DOCKER_CONTAINER=`docker ps -aq`
+
+del: ## delete container
+	docker rm -f ${CONTAINER_NAME}
 
 clean: ## clean images & containers
 	-@make clean-images
