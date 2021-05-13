@@ -6,6 +6,6 @@ test: mcc
 	./test.sh
 
 clean:
-	@rm -f mcc *.o *~ tmp* a.out
+	@rm -f mcc *.o *~ tmp* a.out *.gch
 
 .PHONY: test clean
