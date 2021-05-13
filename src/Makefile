@@ -1,6 +1,6 @@
 CFLAGS=-std=c11 -g -static
 
-mcc: mcc.c
+mcc: util.c mcc.c
 
 test: mcc
 	./test.sh
