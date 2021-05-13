@@ -4,6 +4,47 @@
 #include <stdarg.h> // va_start
 #include <ctype.h>  // isspace, isdigit
 
+
+Token *new_token(TokenKind kind, Token *cur, char *str){
+    Token *tok = calloc(1, sizeof(Token));
+    tok->kind = kind;
+    tok->str = str;
+    cur->next = tok;
+    return tok;
+}
+
+Token *tokenize(){
+    char *p = user_input;
+    Token head;
+    head.next = NULL;
+    Token *cur = &head;
+
+    while(*p){
+        if(isspace(*p)){
+            p++;
+            continue;
+        }
+
+        if(*p == '+' || *p == '-' || *p == '*' || *p == '/' || *p == '(' || *p == ')'){
+            cur = new_token(TK_RESERVED, cur, p++);
+            continue;
+        }
+
+        // 数字の場合
+        if(isdigit(*p)){
+            cur = new_token(TK_NUM, cur, p);
+            cur->val = strtol(p, &p, 10);
+            continue;
+        }
+
+        // error("invalid token");
+        error_at(p, "aexpected a number");
+    }
+
+    new_token(TK_EOF, cur, p);
+    return head.next;
+}
+
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs){
     Node *node = calloc(1, sizeof(Node));
     node->kind = kind;
@@ -131,44 +172,4 @@ int expect_number(){
 
 bool at_eof(){
     return token->kind == TK_EOF;
-}
-
-Token *new_token(TokenKind kind, Token *cur, char *str){
-    Token *tok = calloc(1, sizeof(Token));
-    tok->kind = kind;
-    tok->str = str;
-    cur->next = tok;
-    return tok;
-}
-
-Token *tokenize(){
-    char *p = user_input;
-    Token head;
-    head.next = NULL;
-    Token *cur = &head;
-
-    while(*p){
-        if(isspace(*p)){
-            p++;
-            continue;
-        }
-
-        if(*p == '+' || *p == '-' || *p == '*' || *p == '/' || *p == '(' || *p == ')'){
-            cur = new_token(TK_RESERVED, cur, p++);
-            continue;
-        }
-
-        // 数字の場合
-        if(isdigit(*p)){
-            cur = new_token(TK_NUM, cur, p);
-            cur->val = strtol(p, &p, 10);
-            continue;
-        }
-
-        // error("invalid token");
-        error_at(p, "aexpected a number");
-    }
-
-    new_token(TK_EOF, cur, p);
-    return head.next;
 }

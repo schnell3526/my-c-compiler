@@ -44,6 +44,7 @@ Node *mul();
 Node *primary();
 
 void gen(Node *node);
+
 void error_at(char *loc, char *fmt, ...);
 void error(char *fmt, ...);
 bool consume(char op);
