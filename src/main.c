@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include "util.h"
+#include "mcc.h"
 
 Token *token;
 

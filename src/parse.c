@@ -1,9 +1,4 @@
-#include "util.h"
-#include <stdio.h>  // fprintf(), vfprintf(), stderr
-#include <stdlib.h> // calloc(), exit(), strtol()
-#include <stdarg.h> // va_start()
-#include <ctype.h>  // isspace(), isdigit()
-#include <string.h> // memcmp()
+#include "mcc.h"
 
 Token *new_token(TokenKind kind, Token *cur, char *str, int len){
     Token *tok = calloc(1, sizeof(Token));
@@ -146,78 +141,6 @@ Node *primary(){
         return node;
     }
     return new_node_num(expect_number());
-}
-
-void gen(Node *node){
-    if(node->kind == ND_NUM){
-        printf("\tpush %d\n", node->val);
-        return;
-    }
-
-    gen(node->lhs);
-    gen(node->rhs);
-
-    printf("\tpop rdi\n");
-    printf("\tpop rax\n");
-
-    switch(node->kind){
-        case ND_ADD:
-            printf("\tadd rax, rdi\n");
-            break;
-        case ND_SUB:
-            printf("\tsub rax, rdi\n");
-            break;
-        case ND_MUL:
-            printf("\timul rax, rdi\n");
-            break;
-        case ND_DIV:
-            printf("\tcqo\n");
-            printf("\tidiv rdi\n");
-            break;
-        case ND_EQUAL:
-            printf("\tcmp rax, rdi\n");
-            printf("\tsete al\n");
-            printf("\tmovzb rax, al\n");
-            break;
-        case ND_NOT_EQUAL:
-            printf("\tcmp rax, rdi\n");
-            printf("\tsetne al\n");
-            printf("\tmovzb rax, al\n");
-            break;
-        case ND_LESS:
-            printf("\tcmp rax, rdi\n");
-            printf("\tsetl al\n");
-            printf("\tmovzb rax, al\n");
-            break;
-        case ND_LESS_EQUAL:
-            printf("\tcmp rax, rdi\n");
-            printf("\tsetle al\n");
-            printf("\tmovzb rax, al\n");
-            break;
-    }
-
-    printf("\tpush rax\n");
-}
-
-void error_at(char *loc, char *fmt, ...){
-    va_list ap;
-    va_start(ap,fmt);
-
-    int pos = loc -user_input;
-    fprintf(stderr, "%s\n", user_input);
-    fprintf(stderr, "%*s", pos, " ");
-    fprintf(stderr, "^ ");
-    vfprintf(stderr, fmt, ap);
-    fprintf(stderr, "\n");
-    exit(1);
-}
-
-void error(char *fmt, ...){
-    va_list ap;
-    va_start(ap, fmt);
-    vfprintf(stderr, fmt , ap);
-    fprintf(stderr, "\n");
-    exit(1);
 }
 
 bool consume(char *op){

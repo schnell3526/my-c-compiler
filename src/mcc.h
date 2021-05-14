@@ -1,6 +1,12 @@
 #ifndef UTIL_H
 #define UTIL_H
+#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>  // fprintf(), vfprintf(), stderr
+#include <stdlib.h> // calloc(), exit(), strtol()
+#include <stdarg.h> // va_start()
+#include <ctype.h>  // isspace(), isdigit()
+#include <string.h> // memcmp()
 
 typedef enum{
     ND_ADD,
