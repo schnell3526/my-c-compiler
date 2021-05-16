@@ -21,6 +21,7 @@ Token *tokenize(){
             continue;
         }
 
+        // 2文字トークン, 1文字よりも先に読む
         if(memcmp(p, "<=", 2) == 0|| memcmp(p, ">=", 2) == 0|| memcmp(p, "==", 2) == 0|| memcmp(p, "!=", 2) == 0){
             cur = new_token(TK_RESERVED, cur, p, 2);
             p += 2;
@@ -28,14 +29,19 @@ Token *tokenize(){
         }
 
         // 一文字のトークン
-        if(strchr("+-*/()<>", *p)){
+        if(strchr("+-*/()<>;=", *p)){
             cur = new_token(TK_RESERVED, cur, p++, 1);
+            continue;
+        }
+
+        // 変数トークンの場合
+        if('a' <= *p && *p <= 'z'){
+            cur = new_token(TK_IDENT, cur, p++, 1);
             continue;
         }
 
         // 数字の場合
         if(isdigit(*p)){
-
             cur = new_token(TK_NUM, cur, p, 0);
             char *q = p;
             cur->val = strtol(p, &p, 10);
@@ -66,8 +72,27 @@ Node *new_node_num(int val){
     return node;
 }
 
+void program(){
+    int i = 0;
+    while(!at_eof())
+        code[i++] = stmt();
+    code[i] = NULL;
+}
+
+Node *stmt(){
+    Node *node = expr();
+    expect(";");
+    return node;
+}
+
 Node *expr(){
+    return assign();
+}
+
+Node *assign(){
     Node *node = equality();
+    if(consume("="))
+        node = new_node(ND_ASSIGN, node, assign());
     return node;
 }
 
@@ -140,6 +165,15 @@ Node *primary(){
         expect(")");
         return node;
     }
+    
+    Token *tok = consume_ident();
+    if(tok){
+        Node *node = calloc(1,sizeof(Node));
+        node->kind = ND_LVAR;
+        node->offset = (tok->str[0] - 'a' + 1) * 8;
+        return node;
+    }
+
     return new_node_num(expect_number());
 }
 
@@ -152,17 +186,25 @@ bool consume(char *op){
     return true;
 }
 
+Token *consume_ident(){
+    Token *tok = token;
+    if(token->kind == TK_IDENT){
+        token = token->next;
+        return tok;
+    }else{
+        return NULL;
+    }
+}
+
 void expect(char *op){
     if (token->kind != TK_RESERVED || strlen(op) != token->len ||
       memcmp(token->str, op, token->len))
-        // error("expected '%c'", op);
         error_at(token->str, "expected \"%s\"", op);
     token = token->next;
 }
 
 int expect_number(){
     if(token->kind != TK_NUM)
-        // error("expected number");
         error_at(token->str, "expected a number");
     int val = token->val;
     token = token->next;

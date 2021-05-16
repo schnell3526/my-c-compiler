@@ -16,32 +16,32 @@ assert(){
         exit 1
     fi
 }
-assert 0 0
-assert 42 42
-assert 2 '1+1'
-assert 47 '5+6*7'
-assert 15 '5*(9-6)'
-assert 4 '(3+5)/2'
-assert 28 "(5+2)*5-4*2+1"
-assert 10 " 12+ 3 - 5"
-assert 10 " 12 + 3 - 5"
-assert 10 '-10+20'
-assert 0 '0==1'
-assert 1 '42==42'
-assert 1 '0!=1'
-assert 0 '42!=42'
-assert 1 '0<1'
-assert 0 '1<1'
-assert 0 '2<1'
-assert 1 '0<=1'
-assert 1 '1<=1'
-assert 0 '2<=1'
-
-assert 1 '1>0'
-assert 0 '1>1'
-assert 0 '1>2'
-assert 1 '1>=0'
-assert 1 '1>=1'
-assert 0 '1>=2'
+assert 0 '0;'
+assert 42 '42;'
+assert 2 '1+1;'
+assert 47 '5+6*7;'
+assert 15 '5*(9-6);'
+assert 4 '(3+5)/2;'
+assert 28 '(5+2)*5-4*2+1;'
+assert 10 ' 12+ 3 - 5;'
+assert 10 ' 12 + 3 - 5;'
+assert 10 '-10+20;'
+assert 0 '0==1;'
+assert 1 '42==42;'
+assert 1 '0!=1;'
+assert 0 '42!=42;'
+assert 1 '0<1;'
+assert 0 '1<1;'
+assert 0 '2<1;'
+assert 1 '0<=1;'
+assert 1 '1<=1;'
+assert 0 '2<=1;'
+assert 1 '1>0;'
+assert 0 '1>1;'
+assert 0 '1>2;'
+assert 1 '1>=0;'
+assert 1 '1>=1;'
+assert 0 '1>=2;'
+assert 26 'a = 10; b = 2; 2 * (a+b) + 2;'
 
 echo OK
