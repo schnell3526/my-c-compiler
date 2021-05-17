@@ -30,7 +30,6 @@ typedef enum {
 } TokenKind;
 
 typedef struct Node Node;
-
 struct Node{
     NodeKind kind;
     Node *lhs;
@@ -40,7 +39,6 @@ struct Node{
 };
 
 typedef struct Token Token;
-
 struct Token{
     TokenKind kind; // トークンの型
     Token *next;    // 次の入力トークン
@@ -48,6 +46,21 @@ struct Token{
     char *str;      // トークンの文字列
     int len;        // トークンの長さ
 };
+
+typedef struct LVar LVar;
+struct LVar{
+    LVar *next;
+    char *name;
+    int len;
+    int offset;
+};
+
+bool is_alpha(char c);
+bool is_alnum(char c);
+
+extern LVar *locals;
+void initialize_lvar();
+LVar *find_lvar(Token *tok);
 
 Token *new_token(TokenKind kind, Token *cur, char *str, int len);
 Token *tokenize();
