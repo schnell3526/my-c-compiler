@@ -1,5 +1,11 @@
 #include "mcc.h"
 
+/*
+functions defined in this file are for genarating code.
+mcc out put code from AST.
+AST -> CODE
+*/
+
 void gen_lval(Node *node){
     if(node->kind != ND_LVAR)
         error("代入値の左辺値が変数ではありません");

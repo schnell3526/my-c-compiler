@@ -1,87 +1,21 @@
 #include "mcc.h"
 
-bool is_alpha(char c){
-    return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || c == '_';
-}
+/*
+functions defined in this file are for parsing.
+mcc parses input Token list into AST.
+Token list -> AST
+*/
 
-bool is_alnum(char c){
-    return is_alpha(c) || ('0' <= c && c <= '9');
-}
-
-Token *new_token(TokenKind kind, Token *cur, char *str, int len){
-    Token *tok = calloc(1, sizeof(Token));
-    tok->kind = kind;
-    tok->str = str;
-    cur->next = tok;
-    tok->len = len;
-    return tok;
-}
-
-Token *tokenize(){
-    char *p = user_input;
-    Token head;
-    head.next = NULL;
-    Token *cur = &head;
-
-    while(*p){
-        if(isspace(*p)){
-            p++;
-            continue;
-        }
-
-        // 2文字トークン, 1文字よりも先に読む
-        if(memcmp(p, "<=", 2) == 0|| memcmp(p, ">=", 2) == 0|| memcmp(p, "==", 2) == 0|| memcmp(p, "!=", 2) == 0){
-            cur = new_token(TK_RESERVED, cur, p, 2);
-            p += 2;
-            continue;
-        }
-
-        // 一文字のトークン
-        if(strchr("+-*/()<>;=", *p)){
-            cur = new_token(TK_RESERVED, cur, p++, 1);
-            continue;
-        }
-
-        // returnの場合
-        if(strncmp(p, "return", 6) == 0 && !is_alnum(p[6])){
-            cur = new_token(TK_RETURN, cur, p, 6);
-            p += 6;
-            continue;
-        }
-
-        // 変数の場合
-        if(is_alpha(*p)){
-            char *q = p;
-            while(is_alnum(*p)){
-                p++;
-            }
-            cur = new_token(TK_IDENT, cur, q, p-q);
-            continue;
-        }
-        // 数字の場合
-        if(isdigit(*p)){
-            cur = new_token(TK_NUM, cur, p, 0);
-            char *q = p;
-            cur->val = strtol(p, &p, 10);
-            cur->len = p - q;
-            continue;
-        }
-
-
-        // error("invalid token");
-        error_at(p, "aexpected a number");
-    }
-
-    new_token(TK_EOF, cur, p, 0);
-    return head.next;
-}
-
+// ローカル変数リスト
 LVar *locals = NULL;
 
+// ローカル変数を初期化
 void initialize_lvar(){
     locals->next = NULL;
     locals->offset = 0;
 }
+
+// ローカル変数が使われたかどうか検索
 LVar *find_lvar(Token *tok) {
     for (LVar *var = locals; var; var = var->next){
         if (var->len == tok->len && !memcmp(tok->str, var->name, var->len)){
@@ -91,6 +25,7 @@ LVar *find_lvar(Token *tok) {
     return NULL;
 }
 
+// 新しいノードを作成(演算子用)
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs){
     Node *node = calloc(1, sizeof(Node));
     node->kind = kind;
@@ -99,6 +34,7 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs){
     return node;
 }
 
+// 新しいノードを作成(数値用)
 Node *new_node_num(int val){
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_NUM;
@@ -256,6 +192,8 @@ Node *primary(){
     return new_node_num(expect_number());
 }
 
+
+// 以下判定関数, consumeは統合したい
 bool consume(char *op){
     if (token->kind != TK_RESERVED || 
         strlen(op) != token->len || 
@@ -298,8 +236,4 @@ int expect_number(){
     int val = token->val;
     token = token->next;
     return val;
-}
-
-bool at_eof(){
-    return token->kind == TK_EOF;
 }
