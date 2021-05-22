@@ -42,6 +42,7 @@ assert 0 '1>2;'
 assert 1 '1>=0;'
 assert 1 '1>=1;'
 assert 0 '1>=2;'
-assert 46 'var1 = 10; var2 = var1 + 2; 2 * (var1+var2) + 2;'
+assert 12 'var1 = 10; var2 = var1 + 2; var3 = 2 * (var1+var2) + 2; return var2;'
+assert 2 'return 2; return 3;'
 
 echo OK

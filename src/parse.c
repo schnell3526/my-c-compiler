@@ -42,6 +42,13 @@ Token *tokenize(){
             continue;
         }
 
+        // returnの場合
+        if(strncmp(p, "return", 6) == 0 && !is_alnum(p[6])){
+            cur = new_token(TK_RETURN, cur, p, 6);
+            p += 6;
+            continue;
+        }
+
         // 変数の場合
         if(is_alpha(*p)){
             char *q = p;
@@ -59,6 +66,7 @@ Token *tokenize(){
             cur->len = p - q;
             continue;
         }
+
 
         // error("invalid token");
         error_at(p, "aexpected a number");
@@ -98,6 +106,24 @@ Node *new_node_num(int val){
     return node;
 }
 
+
+/*
+GRAMMER
+
+program     = stmt*
+// stmt        = expr ";"
+stmt        = expr ";" | "return" expr ";"
+expr        = assign
+assign      = equality ("=" assign)?
+equality    = relational ( "==" relational | "!=" relational)*
+relational  = add ("<" add | "<=" add | ">" add | ">=" add)*
+add         = mul ("+" mul | "-" mul)*
+mul         = unary ("*" unary | "/" unary)*
+unary       = ("+" | "-")? primary
+primary     = num | idnet | "(" expr ")" 
+*/
+
+
 void program(){
     int i = 0;
     while(!at_eof())
@@ -106,8 +132,20 @@ void program(){
 }
 
 Node *stmt(){
-    Node *node = expr();
-    expect(";");
+    Node *node;
+
+    if(consume_return()){
+        // token = token->next;
+        node = calloc(1, sizeof(Node));
+        node->kind = ND_RETURN;
+        node->lhs = expr();
+    }else{
+        node = expr();
+    }
+
+    if(!consume(";")){
+        error_at(token->str, "\";\"ではないトークンです.");
+    }
     return node;
 }
 
@@ -230,6 +268,16 @@ bool consume(char *op){
 Token *consume_ident(){
     Token *tok = token;
     if(token->kind == TK_IDENT){
+        token = token->next;
+        return tok;
+    }else{
+        return NULL;
+    }
+}
+
+Token *consume_return(){
+    Token *tok = token;
+    if(token->kind == TK_RETURN){
         token = token->next;
         return tok;
     }else{
